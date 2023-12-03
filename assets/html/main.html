@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <title>Главная</title>
+</head>
+
+<body>
+    {{ template "header" . }}
+    <div class="containeraaa">
+        <div class="elements">
+            {{ range .Equipments }}
+                <div class="element" id="{{ .Equipment_Id }}">
+                    <div class="data">
+                        <div>{{ .Equipment_Code }}</div>
+                        <div>{{ .Type_Name }}</div>
+                        <div>
+                            {{ if eq .Warehouse_Number 0}} 
+                                Не хранится на складе 
+                            {{ else }} 
+                                Номер склада: {{ .Warehouse_Number }}
+                            {{ end }}
+                        </div>
+                    </div>
+                    <div class="status">
+                        <div class="status-value">
+                            {{ if eq .Status_Request "Одобрено"}}
+                                <p style="color: green;">Одобрено</p>
+                            {{ else if eq .Status_Request "Отклонено"}}
+                                <p style="color: red;">Отклонено</p>
+                            {{ else if eq .Status_Request "Ожидание" }}
+                                <p>Ожидание</p>
+                            {{ else }}
+                                <p>Заявка не подана</p>
+                            {{ end }}
+                        </div>
+                    </div>
+                </div>
+            <div class="elementcontent">
+                <div class="data">
+                    <div>Размер: {{ .Equipment_Size }}</div>
+                    <div>Категория вида: {{ .Type_Name }}</div>
+                    <div>Статус: {{ .Status_Name }}</div>
+                </div>
+                <div class="actions">
+                    {{ if eq .Status_Request ""}} 
+                        <form method="POST" action="/main/create_keeping_request">
+                            <button name="createRequest" value="{{ .Equipment_Code }}" class="button-actions">Отправить заявку на хранение</button>
+                        </form>
+                    {{ end }}
+                    <form method="POST" action="/main/delete_equipment">
+                        <button class="button-actions" name="deleteEquip" value="{{ .Equipment_Code }}" onclick="
+                        if (confirm('Вы уверены что хотите удалить оборудование?')){
+                            return true;
+                        }else{
+                            event.stopPropagation(); event.preventDefault();
+                        };">Удалить оборудование</button>
+                    </form>
+                    <form action="/equipment/edit">
+                        <button class="button-actions" name="editEquip" value="{{ .Equipment_Code }}">Редактировать данные</button>
+                    </form>
+                    {{ if eq .Status_Name "Поломанное оборудование" }}
+                        <form action="/equipment/repair">
+                            <button class="button-actions" name="repairEquip" value="{{ .Equipment_Code }}">Отправить в ремонт</button>
+                        </form>
+                    {{ end }}
+                </div>
+            </div>
+            {{ else }}
+                <h3>У вас нет оборудований</h3>
+            {{end}}
+        </div>
+        <div class="add-equipment-text">Добавление оборудования:</div>
+        <form class="add-equipment" method="POST">
+            <p class="add-equipment-exception" for="number">{{ .Equipment_Code_Exception }}</p>
+            <input type="text" placeholder="Номер оборудования" name="number" id="number" class="add-equipment_input">
+            <select class="add-equipment_input" name="type_name">
+                {{ range .TypeEquipments }}
+                    <option id="{{ .Type_Id }}">{{ .Type_Name }}</option>
+                {{ end }}
+            </select>
+            <p class="add-equipment-exception" for="number">{{ .Equipment_Size_Exception }}</p>
+            <input type="number" min="1" max="15" placeholder="Размер оборудования"
+                class="add-equipment_input" name="equipment_size" id="equipment_size">
+            <select class="add-equipment_input" name="status_name">
+                {{ range .EquipmentStatuses }}
+                    {{ if ne .Status_Id 3 }}
+                        <option id="{{ .Status_Id }}">{{ .Status_Name }}</option>
+                    {{ end }}
+                {{ end }}
+            </select>
+            <button type="submit" class="add-equipment_button btn btn-secondary">Добавить</button>
+        </form>
+    </div>
+    {{ template "footer" . }}
+    <script>
+        let coll = document.getElementsByClassName('element');
+        for (let i = 0; i < coll.length; i++) {
+            coll[i].addEventListener('click', function () {
+                this.classList.toggle('active');
+                let content = this.nextElementSibling;
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                } else {
+                    content.style.maxHeight = content.scrollHeight + 'px'
+                }
+            })
+        } 
+    </script>
+</body>
+
+</html>

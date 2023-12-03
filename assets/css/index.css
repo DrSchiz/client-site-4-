@@ -1,0 +1,26 @@
+html{
+    box-sizing: border-box;
+}
+
+*, *::before, *::after{
+    box-sizing: inherit;
+}
+
+body {
+    background: #C7E0DD;
+    min-width: 100%;
+    min-height: 100vh;
+}
+
+img {
+    pointer-events:none;
+}
+
+.logo {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 100vh;
+}
